@@ -1,0 +1,297 @@
+#include <iostream>
+using namespace std;
+
+class Empolyee
+{
+private:
+    int id;
+    double salary;
+
+public:
+    Empolyee() : id(0), salary(0.0)
+    {
+    }
+    virtual ~Empolyee() = default;
+    Empolyee(int id, double salary) : id(id), salary(salary)
+    {
+    }
+    void setId(int id)
+    {
+        this->id = id;
+    }
+    int getId(void)
+    {
+        return id;
+    }
+    void setSalary(double salary)
+    {
+        this->salary = salary;
+    }
+    double getSalary(void)
+    {
+        return salary;
+    }
+
+    void acceptRecord()
+    {
+        cout << "Enter Id: ";
+        cin >> id;
+        cout << "Enter Salary: ";
+        cin >> salary;
+    }
+
+    void displayRecord()
+    {
+        cout << "Id is : " << id << endl;
+        cout << "Salary is : " << salary << endl;
+    }
+};
+
+class Manager : virtual public Empolyee
+{
+private:
+    double bonus;
+
+public:
+    Manager() : bonus(0.0)
+    {
+    }
+    Manager(double bonus) : bonus(bonus)
+    {
+    }
+    Manager(int id, double salary, double bonus) : Empolyee(id, salary)
+    {
+        this->bonus = bonus;
+    }
+    void setBonus(double bonus)
+    {
+        this->bonus = bonus;
+    }
+    double getBonus(void)
+    {
+        return bonus;
+    }
+
+    void acceptRecord()
+    {
+        Empolyee::acceptRecord();
+        acceptManager();
+    }
+
+    void displayRecord()
+    {
+        Empolyee::displayRecord();
+        displayManager();
+    }
+
+protected:
+    void acceptManager()
+    {
+        cout << "Enter Bonus: ";
+        cin >> bonus;
+    }
+    void displayManager()
+    {
+        cout << "Bonus is : " << bonus << endl;
+    }
+};
+
+class Salesman : virtual public Empolyee
+{
+private:
+    double comission;
+
+public:
+    Salesman() : comission(0.0)
+    {
+    }
+    Salesman(double comission) : comission(comission)
+    {
+    }
+    Salesman(int id, double salary, double comission) : Empolyee(id, salary)
+    {
+        this->comission = comission;
+    }
+    void setComission(double comission)
+    {
+        this->comission = comission;
+    }
+    double getComission(void)
+    {
+        return comission;
+    }
+
+    void acceptRecord()
+    {
+        Empolyee::acceptRecord();
+        acceptSalesman();
+    }
+
+    void displayRecord()
+    {
+        Empolyee::displayRecord();
+        displaySalesman();
+    }
+
+protected:
+    void acceptSalesman()
+    {
+        cout << "Enter comission: ";
+        cin >> comission;
+    }
+    void displaySalesman()
+    {
+        cout << "Comission is : " << comission << endl;
+    }
+};
+
+class SalesManager : public Manager, public Salesman
+{
+
+public:
+    SalesManager()
+    {
+    }
+    SalesManager(int id, double salary, double bonus, double comission) : Empolyee(id, salary), Manager(bonus), Salesman(comission)
+    {
+    }
+    void acceptRecord()
+    {
+        Empolyee::acceptRecord();
+        Manager::acceptManager();
+        Salesman::acceptSalesman();
+    }
+
+    void displayRecord()
+    {
+        Empolyee::displayRecord();
+        Manager::displayManager();
+        Salesman::displaySalesman();
+    }
+
+};
+
+
+
+
+
+
+int menuList()
+{
+    int choice;
+    cout << "-----------------------------" << endl;
+    cout << "0. Exit" << endl;
+    cout << "1. Add Manager" << endl;
+    cout << "2. Add Salesman" << endl;
+    cout << "3. Add SalesManager" << endl;
+    cout << "4. Display Count" << endl;
+    cout << "5. Display All Managers" << endl;
+    cout << "6. Display All Salesmen" << endl;
+    cout << "7. Display All SalesManagers" << endl;
+    cout << "Enter Choice : ";
+    cin >> choice;
+    return choice;
+}
+
+int main()
+{
+    Empolyee *arr[100];
+    int count = 0;
+    int choice;
+
+    while ((choice = menuList()) != 0)
+    {
+        switch (choice)
+        {
+        case 1:
+            arr[count] = new Manager();
+            arr[count]->acceptRecord();
+            count++;
+            break;
+
+        case 2:
+            arr[count] = new Salesman();
+            arr[count]->acceptRecord();
+            count++;
+            break;
+
+        case 3:
+            arr[count] = new SalesManager();
+            arr[count]->acceptRecord();
+            count++;
+            break;
+
+        case 4:
+        {
+            int m = 0, s = 0, sm = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (dynamic_cast<SalesManager *>(arr[i]) != NULL)
+                    sm++;
+                else if (dynamic_cast<Manager *>(arr[i]) != NULL)
+                    m++;
+                else if (dynamic_cast<Salesman *>(arr[i]) != NULL)
+                    s++;
+            }
+
+            cout << "Managers      : " << m << endl;
+            cout << "Salesmen      : " << s << endl;
+            cout << "SalesManagers : " << sm << endl;
+            break;
+        }
+
+        case 5:
+            cout << "\nManagers\n";
+            for (int i = 0; i < count; i++)
+            {
+                Manager *m = dynamic_cast<Manager *>(arr[i]);
+                SalesManager *sm = dynamic_cast<SalesManager *>(arr[i]);
+
+                if (m != NULL && sm == NULL)
+                {
+                    m->displayRecord();
+                    cout << endl;
+                }
+            }
+            break;
+
+        case 6:
+            cout << "\nSalesmen\n";
+            for (int i = 0; i < count; i++)
+            {
+                Salesman *s = dynamic_cast<Salesman *>(arr[i]);
+                SalesManager *sm = dynamic_cast<SalesManager *>(arr[i]);
+
+                if (s != NULL && sm == NULL)
+                {
+                    s->displayRecord();
+                    cout << endl;
+                }
+            }
+            break;
+
+        case 7:
+            cout << "\nSalesManagers\n";
+            for (int i = 0; i < count; i++)
+            {
+                SalesManager *sm = dynamic_cast<SalesManager *>(arr[i]);
+
+                if (sm != NULL)
+                {
+                    sm->displayRecord();
+                    cout << endl;
+                }
+            }
+            break;
+
+        default:
+            cout << "Invalid Choice..." << endl;
+        }
+    }
+
+    for (int i = 0; i < count; i++)
+        delete arr[i];
+
+    return 0;
+}
